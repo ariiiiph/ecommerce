@@ -1,0 +1,41 @@
+# Binaries
+/bin/
+/ecommerce
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Coverage
+coverage.out
+coverage.html
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Docker
+docker-data/
+
+# OS files
+Thumbs.db
