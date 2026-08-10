@@ -8,6 +8,11 @@ import (
 
 type Config struct {
 	AppEnv string
+
+	PostgresUser     string
+	PostgresPassword string
+	PostgresDB       string
+	PostgresPort     string
 }
 
 func Load() (*Config, error) {
@@ -16,6 +21,10 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		AppEnv: os.Getenv("APP_ENV"),
+		AppEnv:           os.Getenv("APP_ENV"),
+		PostgresUser:     os.Getenv("POSTGRES_USER"),
+		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
+		PostgresDB:       os.Getenv("POSTGRES_DB"),
+		PostgresPort:     os.Getenv("POSTGRES_PORT"),
 	}, nil
 }
