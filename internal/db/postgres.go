@@ -17,6 +17,7 @@ func NewPostgres(cfg *config.Config) (*sql.DB, error) {
 		cfg.PostgresPort,
 		cfg.PostgresDB,
 	)
+	fmt.Println("PostgreSQL DSN:", dsn)
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open postgres connection: %w", err)

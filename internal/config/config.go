@@ -17,6 +17,7 @@ type Config struct {
 	PostgresPort     string
 
 	Redis RedisConfig
+	JWT   JWTConfig
 }
 
 type RedisConfig struct {

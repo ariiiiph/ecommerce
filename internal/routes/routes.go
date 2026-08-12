@@ -1,15 +1,18 @@
 package routes
 
-import "net/http"
+import (
+	"net/http"
 
-func Setup() *http.ServeMux {
+	"github.com/ariiiiph/ecommerce/internal/app"
+)
+
+func Setup(application *app.App) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
-	})
+	mux.HandleFunc("POST /api/auth/register", application.Dependencies.AuthHandler.Register)
+	mux.HandleFunc("POST /api/auth/login", application.Dependencies.AuthHandler.Login)
+	mux.HandleFunc("POST /api/auth/refresh", application.Dependencies.AuthHandler.Refresh)
+	mux.HandleFunc("POST /api/auth/logout", application.Dependencies.AuthHandler.Logout)
 
 	return mux
 }

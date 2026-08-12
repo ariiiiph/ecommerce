@@ -42,7 +42,7 @@ func main() {
 
 	application := app.New(dependencies)
 
-	router := routes.Setup()
+	router := routes.Setup(application)
 
 	fmt.Println("E-commerce API is starting...")
 	fmt.Println("Environment:", application.Dependencies.Config.AppEnv)
