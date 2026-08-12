@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/ariiiiph/ecommerce/internal/app"
 	"github.com/ariiiiph/ecommerce/internal/config"
 	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/redis"
+	"github.com/ariiiiph/ecommerce/internal/routes"
 )
 
 func main() {
@@ -40,8 +42,13 @@ func main() {
 
 	application := app.New(dependencies)
 
+	router := routes.Setup()
+
 	fmt.Println("E-commerce API is starting...")
 	fmt.Println("Environment:", application.Dependencies.Config.AppEnv)
 	fmt.Println("PostgreSQL connection: OK")
 	fmt.Println("Redis connection: OK")
+	fmt.Println("Server listening on :8080")
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
