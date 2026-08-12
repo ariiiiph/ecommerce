@@ -53,7 +53,12 @@ func main() {
 
 	application := app.New(dependencies)
 
-	router := routes.Setup(application)
+	mux := http.NewServeMux()
+
+	routes.RegisterRoutes(
+		mux,
+		application.Dependencies,
+	)
 
 	fmt.Println("E-commerce API is starting...")
 	fmt.Println("Environment:", application.Dependencies.Config.AppEnv)
@@ -61,5 +66,5 @@ func main() {
 	fmt.Println("Redis connection: OK")
 	fmt.Println("Server listening on :8080")
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }

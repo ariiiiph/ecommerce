@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -32,6 +33,13 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
+	jwtExpiration, err := time.ParseDuration(
+		os.Getenv("JWT_ACCESS_EXPIRATION"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
 		AppEnv: os.Getenv("APP_ENV"),
 
@@ -45,6 +53,11 @@ func Load() (*Config, error) {
 			Port:     getEnvInt("REDIS_PORT", 6379),
 			Password: os.Getenv("REDIS_PASSWORD"),
 			DB:       getEnvInt("REDIS_DB", 0),
+		},
+
+		JWT: JWTConfig{
+			Secret:     os.Getenv("JWT_SECRET"),
+			Expiration: jwtExpiration,
 		},
 	}, nil
 }

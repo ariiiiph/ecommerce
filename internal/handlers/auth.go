@@ -140,14 +140,22 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {string} string "Failed to logout"
 // @Router /api/auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	rawToken := extractBearerToken(r)
+	var req dto.LogoutRequest
 
-	if rawToken == "" {
-		http.Error(w, "refresh token is required", http.StatusUnauthorized)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	err := h.authService.Logout(r.Context(), rawToken)
+	if req.RefreshToken == "" {
+		http.Error(w, "refresh token is required", http.StatusBadRequest)
+		return
+	}
+
+	err := h.authService.Logout(
+		r.Context(),
+		req.RefreshToken,
+	)
 	if err != nil {
 		if errors.Is(err, services.ErrInvalidCredentials) {
 			http.Error(w, "invalid refresh token", http.StatusUnauthorized)
