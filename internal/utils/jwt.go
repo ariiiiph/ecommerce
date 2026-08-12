@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/ariiiiph/ecommerce/internal/config"
@@ -32,7 +33,41 @@ func GenerateAccessToken(
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(
+		jwt.SigningMethodHS256,
+		claims,
+	)
 
 	return token.SignedString([]byte(cfg.Secret))
+}
+
+func ValidateAccessToken(
+	cfg config.JWTConfig,
+	tokenString string,
+) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&Claims{},
+		func(token *jwt.Token) (any, error) {
+			if token.Method != jwt.SigningMethodHS256 {
+				return nil, fmt.Errorf(
+					"unexpected signing method: %v",
+					token.Header["alg"],
+				)
+			}
+
+			return []byte(cfg.Secret), nil
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid access token")
+	}
+
+	return claims, nil
 }
