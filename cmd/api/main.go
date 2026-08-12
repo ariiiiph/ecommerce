@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	_ "github.com/ariiiiph/ecommerce/docs"
 	"github.com/ariiiiph/ecommerce/internal/app"
 	"github.com/ariiiiph/ecommerce/internal/config"
 	"github.com/ariiiiph/ecommerce/internal/db"
@@ -12,6 +13,16 @@ import (
 	"github.com/ariiiiph/ecommerce/internal/routes"
 )
 
+// @title E-Commerce API
+// @version 1.0
+// @description E-Commerce backend API built with Go, PostgreSQL, Redis, and Docker.
+// @host localhost:8080
+// @BasePath /
+// @schemes http
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter "Bearer " followed by your refresh token.
 func main() {
 	cfg, err := config.Load()
 	if err != nil {

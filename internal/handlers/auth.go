@@ -20,6 +20,18 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	}
 }
 
+// Register godoc
+// @Summary Register a new user
+// @Description Creates a new customer account.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body dto.RegisterRequest true "Registration data"
+// @Success 201 {object} dto.AuthResponse
+// @Failure 400 {string} string "Invalid request body"
+// @Failure 409 {string} string "Email already exists"
+// @Failure 500 {string} string "Failed to register user"
+// @Router /api/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req dto.RegisterRequest
 
@@ -47,6 +59,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, result)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticates a user and returns access and refresh tokens.
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body dto.LoginRequest true "Login credentials"
+// @Success 200 {object} dto.AuthResponse
+// @Failure 400 {string} string "Invalid request body"
+// @Failure 401 {string} string "Invalid email or password"
+// @Failure 500 {string} string "Failed to login"
+// @Router /api/auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req dto.LoginRequest
 
@@ -74,6 +98,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+// Refresh godoc
+// @Summary Refresh access token
+// @Description Generates a new access token and refresh token using a valid refresh token.
+// @Tags Authentication
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} dto.AuthResponse
+// @Failure 401 {string} string "Invalid refresh token"
+// @Failure 500 {string} string "Failed to refresh token"
+// @Router /api/auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	rawToken := extractBearerToken(r)
 
@@ -96,6 +130,15 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Revokes the current refresh token.
+// @Tags Authentication
+// @Security BearerAuth
+// @Success 204
+// @Failure 401 {string} string "Invalid refresh token"
+// @Failure 500 {string} string "Failed to logout"
+// @Router /api/auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	rawToken := extractBearerToken(r)
 
