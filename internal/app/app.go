@@ -14,6 +14,7 @@ func New(dependencies *Dependencies) *App {
 	userRepository := repositories.NewUserRepository(dependencies.DB)
 	roleRepository := repositories.NewRoleRepository(dependencies.DB)
 	refreshTokenRepository := repositories.NewRefreshTokenRepository(dependencies.DB)
+	categoryRepository := repositories.NewCategoryRepository(dependencies.DB)
 
 	authService := services.NewAuthService(
 		userRepository,
@@ -23,8 +24,11 @@ func New(dependencies *Dependencies) *App {
 	)
 
 	authHandler := handlers.NewAuthHandler(authService)
+	categoryService := services.NewCategoryService(categoryRepository)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
 	dependencies.AuthHandler = authHandler
+	dependencies.CategoryHandler = categoryHandler
 
 	return &App{
 		Dependencies: dependencies,
