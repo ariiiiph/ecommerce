@@ -133,7 +133,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 // Logout godoc
 // @Summary Logout user
 // @Description Revokes the current refresh token.
-// @Tags Authenticationgit commit -m "Complete authentication middleware integration"
+// @Tags Authentication
 // @Security BearerAuth
 // @Success 204
 // @Failure 401 {string} string "Invalid refresh token"
