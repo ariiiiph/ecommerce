@@ -29,4 +29,11 @@ func RegisterRoutes(
 	mux.HandleFunc("GET /api/categories/{id}", deps.CategoryHandler.GetByID)
 	mux.HandleFunc("GET /api/categories/{id}/children", deps.CategoryHandler.GetChildren)
 	mux.HandleFunc("GET /api/categories/{id}/tree", deps.CategoryHandler.GetTree)
+
+	//Brand routes
+	mux.Handle("POST /api/brands", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.BrandHandler.Create))))
+	mux.Handle("PUT /api/brands/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.BrandHandler.Update))))
+	mux.Handle("DELETE /api/brands/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.BrandHandler.Delete))))
+	mux.HandleFunc("GET /api/brands", deps.BrandHandler.GetAll)
+	mux.HandleFunc("GET /api/brands/{id}", deps.BrandHandler.GetByID)
 }

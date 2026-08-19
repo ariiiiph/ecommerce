@@ -15,4 +15,5 @@ type Dependencies struct {
 
 	AuthHandler     *handlers.AuthHandler
 	CategoryHandler *handlers.CategoryHandler
+	BrandHandler    *handlers.BrandHandler
 }

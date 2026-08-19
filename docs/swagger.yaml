@@ -9,6 +9,17 @@ definitions:
       user:
         $ref: '#/definitions/dto.UserResponse'
     type: object
+  dto.BrandResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
   dto.CategoryResponse:
     properties:
       description:
@@ -19,6 +30,15 @@ definitions:
         type: string
       parent_id:
         type: integer
+      slug:
+        type: string
+    type: object
+  dto.CreateBrandRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
       slug:
         type: string
     type: object
@@ -47,6 +67,15 @@ definitions:
       name:
         type: string
       password:
+        type: string
+    type: object
+  dto.UpdateBrandRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      slug:
         type: string
     type: object
   dto.UpdateCategoryRequest:
@@ -189,6 +218,185 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /api/brands:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all brands.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.BrandResponse'
+            type: array
+        "500":
+          description: Failed to get brands
+          schema:
+            type: string
+      summary: Get all brands
+      tags:
+      - Brands
+    post:
+      consumes:
+      - application/json
+      description: Creates a new brand.
+      parameters:
+      - description: Brand data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBrandRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BrandResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "409":
+          description: Brand already exists
+          schema:
+            type: string
+        "500":
+          description: Failed to create brand
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create a new brand
+      tags:
+      - Brands
+  /api/brands/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a brand by its ID.
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Invalid brand ID
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Brand not found
+          schema:
+            type: string
+        "500":
+          description: Failed to delete brand
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete brand
+      tags:
+      - Brands
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a brand by its iD
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BrandResponse'
+        "400":
+          description: Invalid brand ID
+          schema:
+            type: string
+        "404":
+          description: brand not found
+          schema:
+            type: string
+        "500":
+          description: Failed to get brand
+          schema:
+            type: string
+      summary: Get brand by ID
+      tags:
+      - Brands
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing brand.
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated brand data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateBrandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BrandResponse'
+        "400":
+          description: Invalid request body or brand ID
+          schema:
+            type: string
+        "404":
+          description: brand not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update brand
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update brand
+      tags:
+      - Brands
   /api/categories:
     get:
       consumes:
