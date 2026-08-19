@@ -6,14 +6,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ariiiiph/ecommerce/internal/apperror"
 	"github.com/ariiiiph/ecommerce/internal/dto"
 	"github.com/ariiiiph/ecommerce/internal/models"
 	"github.com/ariiiiph/ecommerce/internal/repositories"
-)
-
-var (
-	ErrCategoryNotFound      = errors.New("category not found")
-	ErrCategoryAlreadyExists = errors.New("category already exists")
 )
 
 type CategoryService struct {
@@ -28,18 +24,27 @@ func NewCategoryService(categoryRepo *repositories.CategoryRepository) *Category
 
 func (s *CategoryService) Create(ctx context.Context, req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
 	if req.Name == "" {
-		return nil, errors.New("category name is required")
+		return nil, apperror.BadRequest(
+			"CATEGORY_NAME_REQUIRED",
+			"category name is required",
+		)
 	}
 
 	if req.Slug == "" {
-		return nil, errors.New("category slug is required")
+		return nil, apperror.BadRequest(
+			"CATEGORY_SLUG_REQUIRED",
+			"category slug is required",
+		)
 	}
 
 	if req.ParentID != nil {
 		_, err := s.categoryRepo.FindByID(ctx, *req.ParentID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, ErrCategoryNotFound
+				return nil, apperror.NotFound(
+					"PARENT_CATEGORY_NOT_FOUND",
+					"parent category not found",
+				)
 			}
 
 			return nil, err
@@ -70,12 +75,13 @@ func (s *CategoryService) GetByID(ctx context.Context, id int64) (*dto.CategoryR
 	category, err := s.categoryRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrCategoryNotFound
+			return nil, apperror.NotFound(
+				"CATEGORY_NOT_FOUND",
+				"category not found",
+			)
 		}
-
 		return nil, err
 	}
-
 	return &dto.CategoryResponse{
 		ID:          category.ID,
 		Name:        category.Name,
@@ -110,29 +116,44 @@ func (s *CategoryService) Update(ctx context.Context, id int64, req *dto.UpdateC
 	category, err := s.categoryRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrCategoryNotFound
+			return nil, apperror.NotFound(
+				"CATEGORY_NOT_FOUND",
+				"category not found",
+			)
 		}
 
 		return nil, err
 	}
 
 	if req.Name == "" {
-		return nil, errors.New("category name is required")
+		return nil, apperror.BadRequest(
+			"CATEGORY_NAME_REQUIRED",
+			"category name is required",
+		)
 	}
 
 	if req.Slug == "" {
-		return nil, errors.New("category slug is required")
+		return nil, apperror.BadRequest(
+			"CATEGORY_SLUG_REQUIRED",
+			"category slug is required",
+		)
 	}
 
 	if req.ParentID != nil {
 		if *req.ParentID == id {
-			return nil, errors.New("category cannot be its own parent")
+			return nil, apperror.BadRequest(
+				"CATEGORY_SELF_PARENT",
+				"category cannot be its own parent",
+			)
 		}
 
 		_, err := s.categoryRepo.FindByID(ctx, *req.ParentID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, ErrCategoryNotFound
+				return nil, apperror.NotFound(
+					"PARENT_CATEGORY_NOT_FOUND",
+					"parent category not found",
+				)
 			}
 
 			return nil, err
@@ -162,7 +183,10 @@ func (s *CategoryService) Delete(ctx context.Context, id int64) error {
 	_, err := s.categoryRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ErrCategoryNotFound
+			return apperror.NotFound(
+				"CATEGORY_NOT_FOUND",
+				"category not found",
+			)
 		}
 
 		return err
@@ -175,12 +199,14 @@ func (s *CategoryService) GetChildren(ctx context.Context, parentID int64) ([]*d
 	_, err := s.categoryRepo.FindByID(ctx, parentID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrCategoryNotFound
+			return nil, apperror.NotFound(
+				"CATEGORY_NOT_FOUND",
+				"category not found",
+			)
 		}
 
 		return nil, err
 	}
-
 	categories, err := s.categoryRepo.FindChildren(ctx, parentID)
 	if err != nil {
 		return nil, err
@@ -205,7 +231,10 @@ func (s *CategoryService) GetTree(ctx context.Context, parentID int64) ([]*dto.C
 	_, err := s.categoryRepo.FindByID(ctx, parentID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrCategoryNotFound
+			return nil, apperror.NotFound(
+				"CATEGORY_NOT_FOUND",
+				"category not found",
+			)
 		}
 
 		return nil, err

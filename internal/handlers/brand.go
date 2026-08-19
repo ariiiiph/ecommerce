@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/ariiiiph/ecommerce/internal/apperror"
 	"github.com/ariiiiph/ecommerce/internal/dto"
 	"github.com/ariiiiph/ecommerce/internal/services"
 )
@@ -29,41 +29,26 @@ func NewBrandHandler(brandService *services.BrandService) *BrandHandler {
 // @Param request body dto.CreateBrandRequest true "Brand data"
 // @Security BearerAuth
 // @Success 201 {object} dto.BrandResponse
-// @Failure 400 {string} string "Invalid request body"
+// @Failure 400 {object} map[string]any "Bad request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 403 {string} string "Forbidden"
-// @Failure 409 {string} string "Brand already exists"
-// @Failure 500 {string} string "Failed to create brand"
+// @Failure 409 {object} map[string]any "Brand already exists"
+// @Failure 500 {object} map[string]any "Internal server error"
 // @Router /api/brands [post]
 func (h *BrandHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req dto.CreateBrandRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if req.Name == "" {
-		http.Error(w, "name is required", http.StatusBadRequest)
-		return
-	}
-
-	if req.Slug == "" {
-		http.Error(w, "slug is required", http.StatusBadRequest)
+		apperror.Write(w, apperror.BadRequest(
+			"INVALID_REQUEST_BODY",
+			"invalid request body",
+		))
 		return
 	}
 
 	result, err := h.brandService.Create(r.Context(), &req)
 	if err != nil {
-		if errors.Is(err, services.ErrBrandAlreadyExists) {
-			http.Error(w, err.Error(), http.StatusConflict)
-			return
-		}
-		if errors.Is(err, services.ErrBrandNotFound) {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, "failed to create brand", http.StatusInternalServerError)
+		apperror.Write(w, err)
 		return
 	}
 	writeJSON(w, http.StatusCreated, result)
@@ -77,30 +62,29 @@ func (h *BrandHandler) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Brand ID"
 // @Success 200 {object} dto.BrandResponse
-// @Failure 400 {string} string "Invalid brand ID"
-// @Failure 404 {string} string "brand not found"
-// @Failure 500 {string} string "Failed to get brand"
+// @Failure 400 {object} map[string]any "Bad request"
+// @Failure 404 {object} map[string]any "Brand not found"
+// @Failure 500 {object} map[string]any "Internal server error"
 // @Router /api/brands/{id} [get]
 func (h *BrandHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		http.Error(w, "invalid brand id", http.StatusBadRequest)
+		apperror.Write(w, apperror.BadRequest(
+			"INVALID_BRAND_ID",
+			"invalid brand id",
+		))
 		return
 	}
 
 	result, err := h.brandService.GetByID(r.Context(), id)
 	if err != nil {
-		if errors.Is(err, services.ErrBrandNotFound) {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, "failed to get brand", http.StatusInternalServerError)
+		apperror.Write(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, result)
 
+	writeJSON(w, http.StatusOK, result)
 }
 
 // GetAll godoc
@@ -115,7 +99,7 @@ func (h *BrandHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 func (h *BrandHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	result, err := h.brandService.GetAll(r.Context())
 	if err != nil {
-		http.Error(w, "failed to get brands", http.StatusInternalServerError)
+		apperror.Write(w, err)
 		return
 	}
 
@@ -132,49 +116,39 @@ func (h *BrandHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Param request body dto.UpdateBrandRequest true "Updated brand data"
 // @Security BearerAuth
 // @Success 200 {object} dto.BrandResponse
-// @Failure 400 {string} string "Invalid request body or brand ID"
-// @Failure 404 {string} string "brand not found"
-// @Failure 500 {string} string "Failed to update brand"
+// @Failure 400 {object} map[string]any "Bad request"
+// @Failure 404 {object} map[string]any "Brand not found"
+// @Failure 500 {object} map[string]any "Internal server error"
 // @Router /api/brands/{id} [put]
 func (h *BrandHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		http.Error(w, "invalid brand id", http.StatusBadRequest)
+		apperror.Write(w, apperror.BadRequest(
+			"INVALID_BRAND_ID",
+			"invalid brand id",
+		))
 		return
 	}
 
 	var req dto.UpdateBrandRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if req.Name == "" {
-		http.Error(w, "name is required", http.StatusBadRequest)
-		return
-	}
-
-	if req.Slug == "" {
-		http.Error(w, "slug is required", http.StatusBadRequest)
+		apperror.Write(w, apperror.BadRequest(
+			"INVALID_REQUEST_BODY",
+			"invalid request body",
+		))
 		return
 	}
 
 	result, err := h.brandService.Update(r.Context(), id, &req)
 	if err != nil {
-		if errors.Is(err, services.ErrBrandNotFound) {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-
-		http.Error(w, "failed to update brand", http.StatusInternalServerError)
+		apperror.Write(w, err)
 		return
 	}
 
 	writeJSON(w, http.StatusOK, result)
-
 }
 
 // Delete godoc
@@ -185,30 +159,28 @@ func (h *BrandHandler) Update(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path int true "Brand ID"
 // @Security BearerAuth
-// @Success 204 {string} string "No Content"
-// @Failure 400 {string} string "Invalid brand ID"
+// @Success 204
+// @Failure 400 {object} map[string]any "Bad request"
 // @Failure 401 {string} string "Unauthorized"
 // @Failure 403 {string} string "Forbidden"
-// @Failure 404 {string} string "Brand not found"
-// @Failure 500 {string} string "Failed to delete brand"
+// @Failure 404 {object} map[string]any "Brand not found"
+// @Failure 500 {object} map[string]any "Internal server error"
 // @Router /api/brands/{id} [delete]
 func (h *BrandHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		http.Error(w, "invalid brand id", http.StatusBadRequest)
+		apperror.Write(w, apperror.BadRequest(
+			"INVALID_BRAND_ID",
+			"invalid brand id",
+		))
 		return
 	}
 
 	err = h.brandService.Delete(r.Context(), id)
 	if err != nil {
-		if errors.Is(err, services.ErrBrandNotFound) {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-
-		http.Error(w, "failed to delete brand", http.StatusInternalServerError)
+		apperror.Write(w, err)
 		return
 	}
 

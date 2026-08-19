@@ -258,9 +258,10 @@ paths:
           schema:
             $ref: '#/definitions/dto.BrandResponse'
         "400":
-          description: Invalid request body
+          description: Bad request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -272,11 +273,13 @@ paths:
         "409":
           description: Brand already exists
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to create brand
+          description: Internal server error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Create a new brand
@@ -298,12 +301,11 @@ paths:
       responses:
         "204":
           description: No Content
-          schema:
-            type: string
         "400":
-          description: Invalid brand ID
+          description: Bad request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -315,11 +317,13 @@ paths:
         "404":
           description: Brand not found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to delete brand
+          description: Internal server error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Delete brand
@@ -343,17 +347,20 @@ paths:
           schema:
             $ref: '#/definitions/dto.BrandResponse'
         "400":
-          description: Invalid brand ID
+          description: Bad request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "404":
-          description: brand not found
+          description: Brand not found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to get brand
+          description: Internal server error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       summary: Get brand by ID
       tags:
       - Brands
@@ -381,17 +388,20 @@ paths:
           schema:
             $ref: '#/definitions/dto.BrandResponse'
         "400":
-          description: Invalid request body or brand ID
+          description: Bad request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "404":
-          description: brand not found
+          description: Brand not found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to update brand
+          description: Internal server error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Update brand
@@ -399,8 +409,6 @@ paths:
       - Brands
   /api/categories:
     get:
-      consumes:
-      - application/json
       description: Retrieves all categories.
       produces:
       - application/json
@@ -412,9 +420,10 @@ paths:
               $ref: '#/definitions/dto.CategoryResponse'
             type: array
         "500":
-          description: Failed to get categories
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       summary: Get all categories
       tags:
       - Categories
@@ -437,9 +446,10 @@ paths:
           schema:
             $ref: '#/definitions/dto.CategoryResponse'
         "400":
-          description: Invalid request body
+          description: Bad Request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -449,17 +459,15 @@ paths:
           schema:
             type: string
         "404":
-          description: Parent category not found
+          description: Not Found
           schema:
-            type: string
-        "409":
-          description: Category already exists
-          schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to create category
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Create a new category
@@ -467,8 +475,6 @@ paths:
       - Categories
   /api/categories/{id}:
     delete:
-      consumes:
-      - application/json
       description: Deletes a category by its ID.
       parameters:
       - description: Category ID
@@ -481,12 +487,11 @@ paths:
       responses:
         "204":
           description: No Content
-          schema:
-            type: string
         "400":
-          description: Invalid category ID
+          description: Bad Request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -496,21 +501,21 @@ paths:
           schema:
             type: string
         "404":
-          description: Category not found
+          description: Not Found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to delete category
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Delete category
       tags:
       - Categories
     get:
-      consumes:
-      - application/json
       description: Retrieves a category by its ID.
       parameters:
       - description: Category ID
@@ -526,17 +531,20 @@ paths:
           schema:
             $ref: '#/definitions/dto.CategoryResponse'
         "400":
-          description: Invalid category ID
+          description: Bad Request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "404":
-          description: Category not found
+          description: Not Found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to get category
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       summary: Get category by ID
       tags:
       - Categories
@@ -564,17 +572,28 @@ paths:
           schema:
             $ref: '#/definitions/dto.CategoryResponse'
         "400":
-          description: Invalid request body or category ID
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
           schema:
             type: string
         "404":
-          description: Category not found
+          description: Not Found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to update category
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       security:
       - BearerAuth: []
       summary: Update category
@@ -582,8 +601,6 @@ paths:
       - Categories
   /api/categories/{id}/children:
     get:
-      consumes:
-      - application/json
       description: Retrieves all child categories of a given category.
       parameters:
       - description: Category ID
@@ -601,17 +618,20 @@ paths:
               $ref: '#/definitions/dto.CategoryResponse'
             type: array
         "400":
-          description: Invalid category ID
+          description: Bad Request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "404":
-          description: Category not found
+          description: Not Found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to get child categories
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       summary: Get child categories
       tags:
       - Categories
@@ -634,17 +654,20 @@ paths:
               $ref: '#/definitions/dto.CategoryResponse'
             type: array
         "400":
-          description: Invalid category ID
+          description: Bad Request
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "404":
-          description: Category not found
+          description: Not Found
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "500":
-          description: Failed to get category tree
+          description: Internal Server Error
           schema:
-            type: string
+            additionalProperties: true
+            type: object
       summary: Get category tree
       tags:
       - Categories

@@ -6,14 +6,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ariiiiph/ecommerce/internal/apperror"
 	"github.com/ariiiiph/ecommerce/internal/dto"
 	"github.com/ariiiiph/ecommerce/internal/models"
 	"github.com/ariiiiph/ecommerce/internal/repositories"
-)
-
-var (
-	ErrBrandNotFound      = errors.New("brand not found")
-	ErrBrandAlreadyExists = errors.New("brand already exists")
 )
 
 type BrandService struct {
@@ -29,11 +25,17 @@ func NewBrandService(brandRepo *repositories.BrandRepository) *BrandService {
 func (s *BrandService) Create(ctx context.Context, req *dto.CreateBrandRequest) (*dto.BrandResponse, error) {
 
 	if req.Name == "" {
-		return nil, errors.New("brand name is required")
+		return nil, apperror.BadRequest(
+			"BRAND_NAME_REQUIRED",
+			"brand name is required",
+		)
 	}
 
 	if req.Slug == "" {
-		return nil, errors.New("brand slug is required")
+		return nil, apperror.BadRequest(
+			"BRAND_SLUG_REQUIRED",
+			"brand slug is required",
+		)
 	}
 
 	brand := &models.Brand{
@@ -58,7 +60,10 @@ func (s *BrandService) GetByID(ctx context.Context, id int64) (*dto.BrandRespons
 	brand, err := s.brandRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrBrandNotFound
+			return nil, apperror.NotFound(
+				"BRAND_NOT_FOUND",
+				"brand not found",
+			)
 		}
 		return nil, err
 	}
@@ -95,17 +100,26 @@ func (s *BrandService) Update(ctx context.Context, id int64, req *dto.UpdateBran
 	brand, err := s.brandRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrBrandNotFound
+			return nil, apperror.NotFound(
+				"BRAND_NOT_FOUND",
+				"brand not found",
+			)
 		}
 		return nil, err
 	}
 
 	if req.Name == "" {
-		return nil, errors.New("brand name is required")
+		return nil, apperror.BadRequest(
+			"BRAND_NAME_REQUIRED",
+			"brand name is required",
+		)
 	}
 
 	if req.Slug == "" {
-		return nil, errors.New("brand slug is required")
+		return nil, apperror.BadRequest(
+			"BRAND_SLUG_REQUIRED",
+			"brand slug is required",
+		)
 	}
 
 	brand.Name = req.Name
@@ -129,7 +143,10 @@ func (s *BrandService) Delete(ctx context.Context, id int64) error {
 	_, err := s.brandRepo.FindByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ErrBrandNotFound
+			return apperror.NotFound(
+				"BRAND_NOT_FOUND",
+				"brand not found",
+			)
 		}
 
 		return err
