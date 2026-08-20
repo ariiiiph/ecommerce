@@ -36,4 +36,19 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/brands/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.BrandHandler.Delete))))
 	mux.HandleFunc("GET /api/brands", deps.BrandHandler.GetAll)
 	mux.HandleFunc("GET /api/brands/{id}", deps.BrandHandler.GetByID)
+
+	// Product routes
+	mux.Handle("POST /api/products", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductHandler.Create))))
+	mux.Handle("PUT /api/products/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductHandler.Update))))
+	mux.Handle("DELETE /api/products/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductHandler.Delete))))
+	mux.HandleFunc("GET /api/products", deps.ProductHandler.GetAll)
+	mux.HandleFunc("GET /api/products/{id}", deps.ProductHandler.GetByID)
+
+	// Product Variant routes
+	mux.Handle("POST /api/product-variants", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductVariantHandler.Create))))
+	mux.Handle("PUT /api/product-variants/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductVariantHandler.Update))))
+	mux.Handle("DELETE /api/product-variants/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductVariantHandler.Delete))))
+	mux.HandleFunc("GET /api/product-variants/{id}", deps.ProductVariantHandler.GetByID)
+	mux.HandleFunc("GET /api/products/{id}/variants", deps.ProductVariantHandler.GetAllByProductID)
+
 }

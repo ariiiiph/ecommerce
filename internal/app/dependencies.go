@@ -13,7 +13,9 @@ type Dependencies struct {
 	DB     *sql.DB
 	Redis  *redis.Client
 
-	AuthHandler     *handlers.AuthHandler
-	CategoryHandler *handlers.CategoryHandler
-	BrandHandler    *handlers.BrandHandler
+	AuthHandler           *handlers.AuthHandler
+	CategoryHandler       *handlers.CategoryHandler
+	BrandHandler          *handlers.BrandHandler
+	ProductHandler        *handlers.ProductHandler
+	ProductVariantHandler *handlers.ProductVariantHandler
 }
