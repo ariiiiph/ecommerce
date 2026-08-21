@@ -18,4 +18,5 @@ type Dependencies struct {
 	BrandHandler          *handlers.BrandHandler
 	ProductHandler        *handlers.ProductHandler
 	ProductVariantHandler *handlers.ProductVariantHandler
+	ProductImageHandler   *handlers.ProductImageHandler
 }

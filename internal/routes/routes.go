@@ -51,4 +51,10 @@ func RegisterRoutes(
 	mux.HandleFunc("GET /api/product-variants/{id}", deps.ProductVariantHandler.GetByID)
 	mux.HandleFunc("GET /api/products/{id}/variants", deps.ProductVariantHandler.GetAllByProductID)
 
+	//Product Image routes
+	mux.Handle("POST /api/product-images", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductImageHandler.Create))))
+	mux.Handle("PUT /api/product-images/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductImageHandler.Update))))
+	mux.Handle("DELETE /api/product-images/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductImageHandler.Delete))))
+	mux.HandleFunc("GET /api/product-images/{id}", deps.ProductImageHandler.GetByID)
+	mux.HandleFunc("GET /api/products/{id}/images", deps.ProductImageHandler.GetAllByProductID)
 }

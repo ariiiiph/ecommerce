@@ -19,6 +19,7 @@ func New(dependencies *Dependencies) *App {
 	brandRepository := repositories.NewBrandRepository(dependencies.DB)
 	productRepository := repositories.NewProductRepository(dependencies.DB)
 	productVariantRepository := repositories.NewProductVariantRepository(dependencies.DB)
+	productImageRepository := repositories.NewProductImageRepository(dependencies.DB)
 
 	// Services
 	authService := services.NewAuthService(
@@ -47,6 +48,12 @@ func New(dependencies *Dependencies) *App {
 		productRepository,
 	)
 
+	productImageService := services.NewProductImageService(
+		productImageRepository,
+		productVariantRepository,
+		productRepository,
+	)
+
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 
@@ -64,12 +71,15 @@ func New(dependencies *Dependencies) *App {
 
 	productVariantHandler := handlers.NewProductVariantHandler(productVariantService)
 
+	productImageHandler := handlers.NewProductImageHandler(productImageService)
+
 	// Dependencies
 	dependencies.AuthHandler = authHandler
 	dependencies.CategoryHandler = categoryHandler
 	dependencies.BrandHandler = brandHandler
 	dependencies.ProductHandler = productHandler
 	dependencies.ProductVariantHandler = productVariantHandler
+	dependencies.ProductImageHandler = productImageHandler
 
 	return &App{
 		Dependencies: dependencies,
