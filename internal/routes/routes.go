@@ -57,4 +57,11 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/product-images/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ProductImageHandler.Delete))))
 	mux.HandleFunc("GET /api/product-images/{id}", deps.ProductImageHandler.GetByID)
 	mux.HandleFunc("GET /api/products/{id}/images", deps.ProductImageHandler.GetAllByProductID)
+
+	// Attribute routes
+	mux.Handle("POST /api/attributes", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeHandler.Create))))
+	mux.Handle("PUT /api/attributes/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeHandler.Update))))
+	mux.Handle("DELETE /api/attributes/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeHandler.Delete))))
+	mux.HandleFunc("GET /api/attributes/{id}", deps.AttributeHandler.GetByID)
+	mux.HandleFunc("GET /api/attributes", deps.AttributeHandler.GetAll)
 }

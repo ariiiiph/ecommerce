@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  dto.AttributeResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   dto.AuthResponse:
     properties:
       access_token:
@@ -31,6 +44,11 @@ definitions:
       parent_id:
         type: integer
       slug:
+        type: string
+    type: object
+  dto.CreateAttributeRequest:
+    properties:
+      name:
         type: string
     type: object
   dto.CreateBrandRequest:
@@ -153,6 +171,13 @@ definitions:
       password:
         type: string
     type: object
+  dto.UpdateAttributeRequest:
+    properties:
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
   dto.UpdateBrandRequest:
     properties:
       description:
@@ -226,6 +251,198 @@ info:
   title: E-Commerce API
   version: "1.0"
 paths:
+  /api/attributes:
+    get:
+      description: Retrieves all product attributes.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AttributeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all attributes
+      tags:
+      - Attributes
+    post:
+      consumes:
+      - application/json
+      description: Creates a new product attribute.
+      parameters:
+      - description: Attribute data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AttributeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new attribute
+      tags:
+      - Attributes
+  /api/attributes/{id}:
+    delete:
+      description: Deletes an attribute by its ID.
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete attribute
+      tags:
+      - Attributes
+    get:
+      description: Retrieves an attribute by its ID.
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AttributeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get attribute by ID
+      tags:
+      - Attributes
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing product attribute.
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated attribute data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AttributeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update attribute
+      tags:
+      - Attributes
   /api/auth/login:
     post:
       consumes:
