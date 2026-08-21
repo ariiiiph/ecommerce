@@ -122,11 +122,23 @@ func (s *ProductService) GetByID(ctx context.Context, id int64) (*dto.ProductRes
 	return toProductResponse(product), nil
 }
 
-func (s *ProductService) GetAll(ctx context.Context) ([]*dto.ProductResponse, error) {
+func (s *ProductService) GetAll(ctx context.Context, req *dto.PaginationRequest) ([]*dto.ProductResponse, *dto.PaginationResponse, error) {
 
-	products, err := s.productRepo.GetAll(ctx)
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+
+	if req.Limit > 100 {
+		req.Limit = 100
+	}
+
+	products, total, err := s.productRepo.GetAll(ctx, req.Page, req.Limit)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	result := make([]*dto.ProductResponse, 0, len(products))
@@ -134,8 +146,18 @@ func (s *ProductService) GetAll(ctx context.Context) ([]*dto.ProductResponse, er
 	for _, product := range products {
 		result = append(result, toProductResponse(product))
 	}
+	totalPages := 0
+	if total > 0 {
+		totalPages = (total + req.Limit - 1) / req.Limit
+	}
+	pagination := &dto.PaginationResponse{
+		Page:       req.Page,
+		Limit:      req.Limit,
+		Total:      total,
+		TotalPages: totalPages,
+	}
 
-	return result, nil
+	return result, pagination, nil
 }
 
 func (s *ProductService) Update(ctx context.Context, id int64, req *dto.UpdateProductRequest) (*dto.ProductResponse, error) {

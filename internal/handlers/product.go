@@ -96,20 +96,68 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // GetAll godoc
 // @Summary Get all products
-// @Description Retrieves all products.
+// @Description Retrieves a paginated list of products.
 // @Tags Products
 // @Produce json
-// @Success 200 {array} dto.ProductResponse
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of products per page" default(10)
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
 // @Router /api/products [get]
 func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	result, err := h.productService.GetAll(r.Context())
+	page := 1
+	limit := 10
+
+	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
+		parsedPage, err := strconv.Atoi(pageStr)
+		if err != nil {
+			apperror.Write(
+				w,
+				apperror.BadRequest(
+					"INVALID_PAGE",
+					"page must be a valid integer",
+				),
+			)
+			return
+		}
+
+		page = parsedPage
+	}
+
+	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+		parsedLimit, err := strconv.Atoi(limitStr)
+		if err != nil {
+			apperror.Write(
+				w,
+				apperror.BadRequest(
+					"INVALID_LIMIT",
+					"limit must be a valid integer",
+				),
+			)
+			return
+		}
+
+		limit = parsedLimit
+	}
+
+	req := &dto.PaginationRequest{
+		Page:  page,
+		Limit: limit,
+	}
+
+	result, pagination, err := h.productService.GetAll(r.Context(), req)
 	if err != nil {
 		apperror.Write(w, err)
 		return
 	}
 
-	writeJSON(w, http.StatusOK, result)
+	response := map[string]any{
+		"data":       result,
+		"pagination": pagination,
+	}
+
+	writeJSON(w, http.StatusOK, response)
 }
 
 // Update godoc

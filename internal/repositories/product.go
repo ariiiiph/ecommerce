@@ -84,7 +84,8 @@ func (r *ProductRepository) GetByID(ctx context.Context, id int64) (*models.Prod
 	return product, nil
 }
 
-func (r *ProductRepository) GetAll(ctx context.Context) ([]*models.Product, error) {
+func (r *ProductRepository) GetAll(ctx context.Context, page int, limit int) ([]*models.Product, int, error) {
+	offset := (page - 1) * limit
 	query := `
 		SELECT
 			id,
@@ -100,11 +101,12 @@ func (r *ProductRepository) GetAll(ctx context.Context) ([]*models.Product, erro
 		FROM products
 		WHERE deleted_at IS NULL
 		ORDER BY id ASC
+		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -124,16 +126,26 @@ func (r *ProductRepository) GetAll(ctx context.Context) ([]*models.Product, erro
 			&product.DeletedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		products = append(products, product)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+	var total int
+	countQuery := `
+		SELECT COUNT(*)
+		FROM products
+		WHERE deleted_at IS NULL
+	`
 
-	return products, nil
+	err = r.db.QueryRowContext(ctx, countQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return products, total, nil
 }
 
 func (r *ProductRepository) Update(ctx context.Context, product *models.Product) error {

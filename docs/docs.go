@@ -1419,7 +1419,7 @@ const docTemplate = `{
         },
         "/api/products": {
             "get": {
-                "description": "Retrieves all products.",
+                "description": "Retrieves a paginated list of products.",
                 "produces": [
                     "application/json"
                 ],
@@ -1427,14 +1427,35 @@ const docTemplate = `{
                     "Products"
                 ],
                 "summary": "Get all products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of products per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ProductResponse"
-                            }
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "500": {
