@@ -21,6 +21,7 @@ func New(dependencies *Dependencies) *App {
 	productVariantRepository := repositories.NewProductVariantRepository(dependencies.DB)
 	productImageRepository := repositories.NewProductImageRepository(dependencies.DB)
 	attributeRepository := repositories.NewAttributeRepository(dependencies.DB)
+	attributeValueRepository := repositories.NewAttributeValueRepository(dependencies.DB)
 
 	// Services
 	authService := services.NewAuthService(
@@ -58,6 +59,10 @@ func New(dependencies *Dependencies) *App {
 	attributeService := services.NewAttributeService(
 		attributeRepository,
 	)
+	attributeValueService := services.NewAttributeValueService(
+		attributeValueRepository,
+		attributeRepository,
+	)
 
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -82,6 +87,10 @@ func New(dependencies *Dependencies) *App {
 		attributeService,
 	)
 
+	attributeValueHandler := handlers.NewAttributeValueHandler(
+		attributeValueService,
+	)
+
 	// Dependencies
 	dependencies.AuthHandler = authHandler
 	dependencies.CategoryHandler = categoryHandler
@@ -90,6 +99,7 @@ func New(dependencies *Dependencies) *App {
 	dependencies.ProductVariantHandler = productVariantHandler
 	dependencies.ProductImageHandler = productImageHandler
 	dependencies.AttributeHandler = attributeHandler
+	dependencies.AttributeValueHandler = attributeValueHandler
 
 	return &App{
 		Dependencies: dependencies,

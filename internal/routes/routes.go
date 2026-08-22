@@ -64,4 +64,12 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/attributes/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeHandler.Delete))))
 	mux.HandleFunc("GET /api/attributes/{id}", deps.AttributeHandler.GetByID)
 	mux.HandleFunc("GET /api/attributes", deps.AttributeHandler.GetAll)
+
+	// Attribute Value routes
+	mux.Handle("POST /api/attribute-values", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeValueHandler.Create))))
+	mux.Handle("DELETE /api/attribute-values/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeValueHandler.Delete))))
+	mux.Handle("PUT /api/attribute-values/{id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.AttributeValueHandler.Update))))
+	mux.HandleFunc("GET /api/attribute-values/{id}", deps.AttributeValueHandler.GetByID)
+	mux.HandleFunc("GET /api/attribute-values", deps.AttributeValueHandler.GetAll)
+
 }

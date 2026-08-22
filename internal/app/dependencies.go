@@ -20,4 +20,5 @@ type Dependencies struct {
 	ProductVariantHandler *handlers.ProductVariantHandler
 	ProductImageHandler   *handlers.ProductImageHandler
 	AttributeHandler      *handlers.AttributeHandler
+	AttributeValueHandler *handlers.AttributeValueHandler
 }
