@@ -14,9 +14,7 @@ type VariantAttributeValueHandler struct {
 	variantAttributeValueService *services.VariantAttributeValueService
 }
 
-func NewVariantAttributeValueHandler(
-	variantAttributeValueService *services.VariantAttributeValueService,
-) *VariantAttributeValueHandler {
+func NewVariantAttributeValueHandler(variantAttributeValueService *services.VariantAttributeValueService) *VariantAttributeValueHandler {
 	return &VariantAttributeValueHandler{
 		variantAttributeValueService: variantAttributeValueService,
 	}

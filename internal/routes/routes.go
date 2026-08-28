@@ -77,4 +77,10 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/product-variants/{variant_id}/attribute-values/{attribute_value_id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.VariantAttributeValueHandler.Delete))))
 	mux.HandleFunc("GET /api/product-variants/{variant_id}/attribute-values", deps.VariantAttributeValueHandler.GetByVariantID)
 
+	// Inventory routes
+	mux.Handle("POST /api/inventory", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.InventoryHandler.Create))))
+	mux.Handle("PUT /api/inventory/{variant_id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.InventoryHandler.Update))))
+	mux.Handle("DELETE /api/inventory/{variant_id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.InventoryHandler.Delete))))
+	mux.HandleFunc("GET /api/inventory/{variant_id}", deps.InventoryHandler.GetByVariantID)
+	mux.HandleFunc("GET /api/inventory", deps.InventoryHandler.GetAll)
 }

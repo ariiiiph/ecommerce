@@ -89,6 +89,17 @@ definitions:
       slug:
         type: string
     type: object
+  dto.CreateInventoryRequest:
+    properties:
+      low_stock_threshold:
+        type: integer
+      quantity:
+        type: integer
+      reserved_quantity:
+        type: integer
+      variant_id:
+        type: integer
+    type: object
   dto.CreateProductImageRequest:
     properties:
       image_url:
@@ -132,6 +143,21 @@ definitions:
     properties:
       attribute_value_id:
         type: integer
+      variant_id:
+        type: integer
+    type: object
+  dto.InventoryResponse:
+    properties:
+      created_at:
+        type: string
+      low_stock_threshold:
+        type: integer
+      quantity:
+        type: integer
+      reserved_quantity:
+        type: integer
+      updated_at:
+        type: string
       variant_id:
         type: integer
     type: object
@@ -227,6 +253,15 @@ definitions:
         type: integer
       slug:
         type: string
+    type: object
+  dto.UpdateInventoryRequest:
+    properties:
+      low_stock_threshold:
+        type: integer
+      quantity:
+        type: integer
+      reserved_quantity:
+        type: integer
     type: object
   dto.UpdateProductImageRequest:
     properties:
@@ -1246,6 +1281,198 @@ paths:
       summary: Get category tree
       tags:
       - Categories
+  /api/inventory:
+    get:
+      description: Retrieves all inventory records.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.InventoryResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all inventory
+      tags:
+      - Inventory
+    post:
+      consumes:
+      - application/json
+      description: Creates inventory for a product variant.
+      parameters:
+      - description: Inventory data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInventoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.InventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create inventory
+      tags:
+      - Inventory
+  /api/inventory/{variant_id}:
+    delete:
+      description: Deletes inventory for a product variant.
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: variant_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete inventory
+      tags:
+      - Inventory
+    get:
+      description: Retrieves inventory for a product variant.
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: variant_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get inventory by variant ID
+      tags:
+      - Inventory
+    put:
+      consumes:
+      - application/json
+      description: Updates inventory for a product variant.
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: variant_id
+        required: true
+        type: integer
+      - description: Inventory update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInventoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update inventory
+      tags:
+      - Inventory
   /api/product-images:
     post:
       consumes:
