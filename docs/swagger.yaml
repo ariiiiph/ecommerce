@@ -13,6 +13,17 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.AttributeValueResponse:
+    properties:
+      attribute_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
   dto.AuthResponse:
     properties:
       access_token:
@@ -49,6 +60,13 @@ definitions:
   dto.CreateAttributeRequest:
     properties:
       name:
+        type: string
+    type: object
+  dto.CreateAttributeValueRequest:
+    properties:
+      attribute_id:
+        type: integer
+      value:
         type: string
     type: object
   dto.CreateBrandRequest:
@@ -109,6 +127,13 @@ definitions:
         type: integer
       sku:
         type: string
+    type: object
+  dto.CreateVariantAttributeValueRequest:
+    properties:
+      attribute_value_id:
+        type: integer
+      variant_id:
+        type: integer
     type: object
   dto.LoginRequest:
     properties:
@@ -178,6 +203,11 @@ definitions:
       name:
         type: string
     type: object
+  dto.UpdateAttributeValueRequest:
+    properties:
+      value:
+        type: string
+    type: object
   dto.UpdateBrandRequest:
     properties:
       description:
@@ -244,6 +274,13 @@ definitions:
       role:
         type: string
     type: object
+  dto.VariantAttributeValueResponse:
+    properties:
+      attribute_value_id:
+        type: integer
+      variant_id:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -251,6 +288,208 @@ info:
   title: E-Commerce API
   version: "1.0"
 paths:
+  /api/attribute-values:
+    get:
+      description: Retrieves all attribute values.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AttributeValueResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all attribute values
+      tags:
+      - AttributeValues
+    post:
+      consumes:
+      - application/json
+      description: Creates a new value for an attribute.
+      parameters:
+      - description: Attribute value data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAttributeValueRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AttributeValueResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new attribute value
+      tags:
+      - AttributeValues
+  /api/attribute-values/{id}:
+    delete:
+      description: Deletes an attribute value by its ID.
+      parameters:
+      - description: Attribute Value ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete attribute value
+      tags:
+      - AttributeValues
+    get:
+      description: Retrieves an attribute value by its ID.
+      parameters:
+      - description: Attribute Value ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AttributeValueResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get attribute value by ID
+      tags:
+      - AttributeValues
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing attribute value.
+      parameters:
+      - description: Attribute Value ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated attribute value data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAttributeValueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AttributeValueResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update attribute value
+      tags:
+      - AttributeValues
   /api/attributes:
     get:
       description: Retrieves all product attributes.
@@ -1373,6 +1612,89 @@ paths:
       summary: update  product variant
       tags:
       - ProductVariants
+  /api/product-variants/{variant_id}/attribute-values:
+    get:
+      description: Retrieves all attribute values assigned to a product variant.
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: variant_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.VariantAttributeValueResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get attribute values of a product variant
+      tags:
+      - VariantAttributeValues
+  /api/product-variants/{variant_id}/attribute-values/{attribute_value_id}:
+    delete:
+      description: Removes an attribute value assignment from a product variant.
+      parameters:
+      - description: Product Variant ID
+        in: path
+        name: variant_id
+        required: true
+        type: integer
+      - description: Attribute Value ID
+        in: path
+        name: attribute_value_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove an attribute value from a product variant
+      tags:
+      - VariantAttributeValues
   /api/products:
     get:
       description: Retrieves a paginated list of products.
@@ -1660,6 +1982,58 @@ paths:
       summary: Get all variants by product ID
       tags:
       - ProductVariants
+  /api/variant-attribute-values:
+    post:
+      consumes:
+      - application/json
+      description: Assigns an attribute value to a product variant.
+      parameters:
+      - description: Variant attribute value data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVariantAttributeValueRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.VariantAttributeValueResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Assign an attribute value to a product variant
+      tags:
+      - VariantAttributeValues
 schemes:
 - http
 securityDefinitions:

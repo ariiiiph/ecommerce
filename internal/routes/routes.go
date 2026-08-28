@@ -72,4 +72,9 @@ func RegisterRoutes(
 	mux.HandleFunc("GET /api/attribute-values/{id}", deps.AttributeValueHandler.GetByID)
 	mux.HandleFunc("GET /api/attribute-values", deps.AttributeValueHandler.GetAll)
 
+	// Variant Attribute Value routes
+	mux.Handle("POST /api/variant-attribute-values", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.VariantAttributeValueHandler.Create))))
+	mux.Handle("DELETE /api/product-variants/{variant_id}/attribute-values/{attribute_value_id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.VariantAttributeValueHandler.Delete))))
+	mux.HandleFunc("GET /api/product-variants/{variant_id}/attribute-values", deps.VariantAttributeValueHandler.GetByVariantID)
+
 }

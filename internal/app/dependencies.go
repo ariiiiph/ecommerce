@@ -13,12 +13,13 @@ type Dependencies struct {
 	DB     *sql.DB
 	Redis  *redis.Client
 
-	AuthHandler           *handlers.AuthHandler
-	CategoryHandler       *handlers.CategoryHandler
-	BrandHandler          *handlers.BrandHandler
-	ProductHandler        *handlers.ProductHandler
-	ProductVariantHandler *handlers.ProductVariantHandler
-	ProductImageHandler   *handlers.ProductImageHandler
-	AttributeHandler      *handlers.AttributeHandler
-	AttributeValueHandler *handlers.AttributeValueHandler
+	AuthHandler                  *handlers.AuthHandler
+	CategoryHandler              *handlers.CategoryHandler
+	BrandHandler                 *handlers.BrandHandler
+	ProductHandler               *handlers.ProductHandler
+	ProductVariantHandler        *handlers.ProductVariantHandler
+	ProductImageHandler          *handlers.ProductImageHandler
+	AttributeHandler             *handlers.AttributeHandler
+	AttributeValueHandler        *handlers.AttributeValueHandler
+	VariantAttributeValueHandler *handlers.VariantAttributeValueHandler
 }
