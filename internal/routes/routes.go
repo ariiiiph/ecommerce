@@ -83,4 +83,12 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/inventory/{variant_id}", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.InventoryHandler.Delete))))
 	mux.HandleFunc("GET /api/inventory/{variant_id}", deps.InventoryHandler.GetByVariantID)
 	mux.HandleFunc("GET /api/inventory", deps.InventoryHandler.GetAll)
+
+	// Address routes
+	mux.Handle("POST /api/addresses", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.Create)))
+	mux.Handle("PUT /api/addresses/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.Update)))
+	mux.Handle("DELETE /api/addresses/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.Delete)))
+	mux.Handle("GET /api/addresses/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.GetByID)))
+	mux.Handle("GET /api/users/{user_id}/addresses", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.GetAllByUserID)))
+
 }

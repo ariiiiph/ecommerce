@@ -1,5 +1,32 @@
 basePath: /
 definitions:
+  dto.AddressResponse:
+    properties:
+      address_line:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_default:
+        type: boolean
+      phone:
+        type: string
+      postal_code:
+        type: string
+      recipient_name:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   dto.AttributeResponse:
     properties:
       created_at:
@@ -56,6 +83,27 @@ definitions:
         type: integer
       slug:
         type: string
+    type: object
+  dto.CreateAddressRequest:
+    properties:
+      address_line:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      is_default:
+        type: boolean
+      phone:
+        type: string
+      postal_code:
+        type: string
+      recipient_name:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
     type: object
   dto.CreateAttributeRequest:
     properties:
@@ -222,6 +270,25 @@ definitions:
       password:
         type: string
     type: object
+  dto.UpdateAddressRequest:
+    properties:
+      address_line:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      is_default:
+        type: boolean
+      phone:
+        type: string
+      postal_code:
+        type: string
+      recipient_name:
+        type: string
+      title:
+        type: string
+    type: object
   dto.UpdateAttributeRequest:
     properties:
       is_active:
@@ -323,6 +390,199 @@ info:
   title: E-Commerce API
   version: "1.0"
 paths:
+  /api/addresses:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new address for a user.
+      parameters:
+      - description: Address data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAddressRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AddressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new address
+      tags:
+      - Addresses
+  /api/addresses/{id}:
+    delete:
+      description: Deletes an address by its ID.
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an address
+      tags:
+      - Addresses
+    get:
+      description: Retrieves an address by its ID.
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AddressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get an address by ID
+      tags:
+      - Addresses
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing address.
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated address data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAddressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AddressResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an address
+      tags:
+      - Addresses
   /api/attribute-values:
     get:
       description: Retrieves all attribute values.
@@ -2209,6 +2469,52 @@ paths:
       summary: Get all variants by product ID
       tags:
       - ProductVariants
+  /api/users/{user_id}/addresses:
+    get:
+      description: Retrieves all addresses belonging to a specific user.
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AddressResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all addresses for a user
+      tags:
+      - Addresses
   /api/variant-attribute-values:
     post:
       consumes:
