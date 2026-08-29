@@ -15,12 +15,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(
-	cfg config.JWTConfig,
-	userID int64,
-	email string,
-	role string,
-) (string, error) {
+func GenerateAccessToken(cfg config.JWTConfig, userID int64, email string, role string) (string, error) {
 	now := time.Now()
 
 	claims := Claims{
@@ -41,10 +36,7 @@ func GenerateAccessToken(
 	return token.SignedString([]byte(cfg.Secret))
 }
 
-func ValidateAccessToken(
-	cfg config.JWTConfig,
-	tokenString string,
-) (*Claims, error) {
+func ValidateAccessToken(cfg config.JWTConfig, tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&Claims{},

@@ -91,4 +91,10 @@ func RegisterRoutes(
 	mux.Handle("GET /api/addresses/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.GetByID)))
 	mux.Handle("GET /api/users/{user_id}/addresses", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.AddressHandler.GetAllByUserID)))
 
+	// Cart routes
+	mux.Handle("POST /api/carts", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartHandler.Create)))
+	mux.Handle("GET /api/carts", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartHandler.GetByUserID)))
+	mux.Handle("GET /api/carts/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartHandler.GetByID)))
+	mux.Handle("DELETE /api/carts/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartHandler.Delete)))
+
 }

@@ -71,6 +71,17 @@ definitions:
       slug:
         type: string
     type: object
+  dto.CartResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   dto.CategoryResponse:
     properties:
       description:
@@ -1277,6 +1288,153 @@ paths:
       summary: Update brand
       tags:
       - Brands
+  /api/carts:
+    get:
+      description: Retrieves the cart belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get the authenticated user's cart
+      tags:
+      - Carts
+    post:
+      description: Creates a new cart for the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new cart
+      tags:
+      - Carts
+  /api/carts/{id}:
+    delete:
+      description: Deletes a cart by its ID.
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a cart
+      tags:
+      - Carts
+    get:
+      description: Retrieves a cart by its ID.
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a cart by ID
+      tags:
+      - Carts
   /api/categories:
     get:
       description: Retrieves all categories.

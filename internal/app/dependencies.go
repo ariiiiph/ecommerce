@@ -24,4 +24,5 @@ type Dependencies struct {
 	VariantAttributeValueHandler *handlers.VariantAttributeValueHandler
 	InventoryHandler             *handlers.InventoryHandler
 	AddressHandler               *handlers.AddressHandler
+	CartHandler                  *handlers.CartHandler
 }
