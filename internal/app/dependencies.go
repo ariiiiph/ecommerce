@@ -25,4 +25,5 @@ type Dependencies struct {
 	InventoryHandler             *handlers.InventoryHandler
 	AddressHandler               *handlers.AddressHandler
 	CartHandler                  *handlers.CartHandler
+	CartItemHandler              *handlers.CartItemHandler
 }
