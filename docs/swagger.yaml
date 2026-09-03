@@ -227,6 +227,11 @@ definitions:
       variant_id:
         type: integer
     type: object
+  dto.CreateWishlistItemRequest:
+    properties:
+      product_id:
+        type: integer
+    type: object
   dto.InventoryResponse:
     properties:
       created_at:
@@ -419,6 +424,17 @@ definitions:
       attribute_value_id:
         type: integer
       variant_id:
+        type: integer
+    type: object
+  dto.WishlistItemResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      product_id:
+        type: integer
+      wishlist_id:
         type: integer
     type: object
   dto.WishlistResponse:
@@ -2992,6 +3008,141 @@ paths:
       summary: Assign an attribute value to a product variant
       tags:
       - VariantAttributeValues
+  /api/wishlist-items:
+    post:
+      consumes:
+      - application/json
+      description: Adds a product to the authenticated user's wishlist.
+      parameters:
+      - description: Wishlist item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateWishlistItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.WishlistItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add product to wishlist
+      tags:
+      - WishlistItems
+  /api/wishlist-items/{id}:
+    delete:
+      description: Removes a wishlist item belonging to the authenticated user.
+      parameters:
+      - description: Wishlist Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove product from wishlist
+      tags:
+      - WishlistItems
+    get:
+      description: Retrieves a wishlist item belonging to the authenticated user.
+      parameters:
+      - description: Wishlist Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WishlistItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get wishlist item by ID
+      tags:
+      - WishlistItems
   /api/wishlists:
     get:
       description: Retrieves the wishlist belonging to the authenticated user.
@@ -3139,6 +3290,53 @@ paths:
       summary: Get a wishlist by ID
       tags:
       - Wishlists
+  /api/wishlists/{wishlist_id}/items:
+    get:
+      description: Retrieves all items belonging to the authenticated user's wishlist.
+      parameters:
+      - description: Wishlist ID
+        in: path
+        name: wishlist_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.WishlistItemResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all wishlist items
+      tags:
+      - WishlistItems
 schemes:
 - http
 securityDefinitions:
