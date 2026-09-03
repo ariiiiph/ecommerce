@@ -110,6 +110,35 @@ definitions:
       slug:
         type: string
     type: object
+  dto.CouponResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      discount_type:
+        type: string
+      discount_value:
+        type: number
+      expires_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      maximum_discount:
+        type: number
+      minimum_order_amount:
+        type: number
+      starts_at:
+        type: string
+      updated_at:
+        type: string
+      usage_limit:
+        type: integer
+      used_count:
+        type: integer
+    type: object
   dto.CreateAddressRequest:
     properties:
       address_line:
@@ -169,6 +198,27 @@ definitions:
         type: integer
       slug:
         type: string
+    type: object
+  dto.CreateCouponRequest:
+    properties:
+      code:
+        type: string
+      discount_type:
+        type: string
+      discount_value:
+        type: number
+      expires_at:
+        type: string
+      is_active:
+        type: boolean
+      maximum_discount:
+        type: number
+      minimum_order_amount:
+        type: number
+      starts_at:
+        type: string
+      usage_limit:
+        type: integer
     type: object
   dto.CreateInventoryRequest:
     properties:
@@ -363,6 +413,27 @@ definitions:
         type: integer
       slug:
         type: string
+    type: object
+  dto.UpdateCouponRequest:
+    properties:
+      code:
+        type: string
+      discount_type:
+        type: string
+      discount_value:
+        type: number
+      expires_at:
+        type: string
+      is_active:
+        type: boolean
+      maximum_discount:
+        type: number
+      minimum_order_amount:
+        type: number
+      starts_at:
+        type: string
+      usage_limit:
+        type: integer
     type: object
   dto.UpdateInventoryRequest:
     properties:
@@ -1982,6 +2053,223 @@ paths:
       summary: Get category tree
       tags:
       - Categories
+  /api/coupons:
+    get:
+      description: Retrieves all coupons.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CouponResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all coupons
+      tags:
+      - Coupons
+    post:
+      consumes:
+      - application/json
+      description: Creates a new coupon.
+      parameters:
+      - description: Coupon data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCouponRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CouponResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a coupon
+      tags:
+      - Coupons
+  /api/coupons/{id}:
+    delete:
+      description: Deletes a coupon by its ID.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete coupon
+      tags:
+      - Coupons
+    get:
+      description: Retrieves a coupon by its ID.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CouponResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get coupon by ID
+      tags:
+      - Coupons
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing coupon.
+      parameters:
+      - description: Coupon ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated coupon data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCouponRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CouponResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update coupon
+      tags:
+      - Coupons
   /api/inventory:
     get:
       description: Retrieves all inventory records.

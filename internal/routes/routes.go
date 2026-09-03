@@ -116,4 +116,10 @@ func RegisterRoutes(
 	mux.Handle("GET /api/wishlists/{wishlist_id}/items", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistItemHandler.GetAllByWishlistID)))
 	mux.Handle("DELETE /api/wishlist-items/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistItemHandler.Delete)))
 
+	//Coupon routes
+	mux.Handle("POST /api/coupons", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.Create)))
+	mux.Handle("GET /api/coupons", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.GetAll)))
+	mux.Handle("GET /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.GetByID)))
+	mux.Handle("PUT /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.Update)))
+	mux.Handle("DELETE /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.Delete)))
 }
