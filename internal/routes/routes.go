@@ -104,4 +104,10 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/cart-items/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartItemHandler.Delete)))
 	mux.Handle("GET /api/carts/{cart_id}/items", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CartItemHandler.GetAllByCartID)))
 
+	// Wishlist routes
+	mux.Handle("POST /api/wishlists", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistHandler.Create)))
+	mux.Handle("GET /api/wishlists", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistHandler.GetByUserID)))
+	mux.Handle("GET /api/wishlists/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistHandler.GetByID)))
+	mux.Handle("DELETE /api/wishlists/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.WishlistHandler.Delete)))
+
 }

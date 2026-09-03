@@ -26,4 +26,5 @@ type Dependencies struct {
 	AddressHandler               *handlers.AddressHandler
 	CartHandler                  *handlers.CartHandler
 	CartItemHandler              *handlers.CartItemHandler
+	WishlistHandler              *handlers.WishlistHandler
 }
