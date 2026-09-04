@@ -351,22 +351,31 @@ func (s *CouponService) Validate(ctx context.Context, code string, orderAmount d
 		return nil, err
 	}
 
+	if err := validateCoupon(coupon, orderAmount, now); err != nil {
+		return nil, err
+	}
+
+	return toCouponResponse(coupon), nil
+}
+
+func validateCoupon(coupon *models.Coupon, orderAmount decimal.Decimal, now time.Time) error {
+
 	if !coupon.IsActive {
-		return nil, apperror.BadRequest(
+		return apperror.BadRequest(
 			"COUPON_INACTIVE",
 			"coupon is inactive",
 		)
 	}
 
 	if now.Before(coupon.StartsAt) {
-		return nil, apperror.BadRequest(
+		return apperror.BadRequest(
 			"COUPON_NOT_STARTED",
 			"coupon is not active yet",
 		)
 	}
 
 	if !now.Before(coupon.ExpiresAt) {
-		return nil, apperror.BadRequest(
+		return apperror.BadRequest(
 			"COUPON_EXPIRED",
 			"coupon has expired",
 		)
@@ -374,7 +383,7 @@ func (s *CouponService) Validate(ctx context.Context, code string, orderAmount d
 
 	if coupon.UsageLimit != nil &&
 		coupon.UsedCount >= *coupon.UsageLimit {
-		return nil, apperror.BadRequest(
+		return apperror.BadRequest(
 			"COUPON_USAGE_LIMIT_REACHED",
 			"coupon usage limit has been reached",
 		)
@@ -382,13 +391,13 @@ func (s *CouponService) Validate(ctx context.Context, code string, orderAmount d
 
 	if coupon.MinimumOrderAmount != nil &&
 		orderAmount.LessThan(*coupon.MinimumOrderAmount) {
-		return nil, apperror.BadRequest(
+		return apperror.BadRequest(
 			"MINIMUM_ORDER_AMOUNT_NOT_MET",
 			"order amount does not meet the coupon minimum",
 		)
 	}
 
-	return toCouponResponse(coupon), nil
+	return nil
 }
 
 func toCouponResponse(coupon *models.Coupon) *dto.CouponResponse {

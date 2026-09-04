@@ -4,14 +4,20 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type ProductVariantRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewProductVariantRepository(db *sql.DB) *ProductVariantRepository {
+type ProductVariantWithProduct struct {
+	Variant     *models.ProductVariant
+	ProductName string
+}
+
+func NewProductVariantRepository(db db.DBTX) *ProductVariantRepository {
 	return &ProductVariantRepository{
 		db: db,
 	}
@@ -131,4 +137,48 @@ func (r *ProductVariantRepository) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (r *ProductVariantRepository) GetByIDWithProduct(ctx context.Context, id int64) (*ProductVariantWithProduct, error) {
+
+	query := `
+		SELECT
+			pv.id,
+			pv.product_id,
+			pv.sku,
+			pv.price,
+			pv.discount_price,
+			pv.created_at,
+			pv.updated_at,
+			p.name
+		FROM product_variants pv
+		INNER JOIN products p ON p.id = pv.product_id
+		WHERE pv.id = $1
+			AND p.status = 'active'
+			AND p.deleted_at IS NULL
+	`
+
+	var result ProductVariantWithProduct
+	result.Variant = &models.ProductVariant{}
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&result.Variant.ID,
+		&result.Variant.ProductID,
+		&result.Variant.SKU,
+		&result.Variant.Price,
+		&result.Variant.DiscountPrice,
+		&result.Variant.CreatedAt,
+		&result.Variant.UpdatedAt,
+		&result.ProductName,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

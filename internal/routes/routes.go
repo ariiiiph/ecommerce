@@ -122,4 +122,11 @@ func RegisterRoutes(
 	mux.Handle("GET /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.GetByID)))
 	mux.Handle("PUT /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.Update)))
 	mux.Handle("DELETE /api/coupons/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.CouponHandler.Delete)))
+
+	// Order routes
+	mux.Handle("POST /api/orders", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.OrderHandler.Create)))
+	mux.Handle("GET /api/orders", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.OrderHandler.GetAll)))
+	mux.Handle("GET /api/orders/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.OrderHandler.GetByID)))
+	mux.Handle("PATCH /api/orders/{id}/status", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.OrderHandler.UpdateStatus))))
+
 }

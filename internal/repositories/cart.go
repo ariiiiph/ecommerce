@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type CartRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewCartRepository(db *sql.DB) *CartRepository {
+func NewCartRepository(db db.DBTX) *CartRepository {
 	return &CartRepository{
 		db: db,
 	}
@@ -84,4 +85,36 @@ func (r *CartRepository) Delete(ctx context.Context, id int64) error {
 
 	return nil
 
+}
+
+func (r *CartRepository) GetByUserIDForUpdate(ctx context.Context, userID int64) (*models.Cart, error) {
+	query := `
+		SELECT
+			id,
+			user_id,
+			created_at,
+			updated_at
+		FROM carts
+		WHERE user_id = $1
+		FOR UPDATE
+	`
+
+	cart := &models.Cart{}
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		userID,
+	).Scan(
+		&cart.ID,
+		&cart.UserID,
+		&cart.CreatedAt,
+		&cart.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cart, nil
 }

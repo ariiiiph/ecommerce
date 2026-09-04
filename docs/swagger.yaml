@@ -231,6 +231,13 @@ definitions:
       variant_id:
         type: integer
     type: object
+  dto.CreateOrderRequest:
+    properties:
+      address_id:
+        type: integer
+      coupon_id:
+        type: string
+    type: object
   dto.CreateProductImageRequest:
     properties:
       image_url:
@@ -303,6 +310,70 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  dto.OrderItemResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      order_id:
+        type: integer
+      product_name:
+        type: string
+      quantity:
+        type: integer
+      sku:
+        type: string
+      total_price:
+        type: number
+      unit_price:
+        type: number
+      variant_id:
+        type: integer
+    type: object
+  dto.OrderResponse:
+    properties:
+      Created_at:
+        type: string
+      Shipping_postal_code:
+        type: string
+      address_id:
+        type: integer
+      coupon_id:
+        type: integer
+      discount_amount:
+        type: number
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/dto.OrderItemResponse'
+        type: array
+      order_number:
+        type: string
+      shipping_address_line:
+        type: string
+      shipping_amount:
+        type: number
+      shipping_city:
+        type: string
+      shipping_country:
+        type: string
+      shipping_phone:
+        type: string
+      shipping_recipient_name:
+        type: string
+      string:
+        type: string
+      subtotal:
+        type: number
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
     type: object
   dto.ProductImageResponse:
     properties:
@@ -443,6 +514,11 @@ definitions:
         type: integer
       reserved_quantity:
         type: integer
+    type: object
+  dto.UpdateOrderStatusRequest:
+    properties:
+      status:
+        type: string
     type: object
   dto.UpdateProductImageRequest:
     properties:
@@ -2462,6 +2538,171 @@ paths:
       summary: Update inventory
       tags:
       - Inventory
+  /api/orders:
+    get:
+      description: Retrieves all orders belonging to the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.OrderResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user's orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Creates an order from the authenticated user's cart.
+      parameters:
+      - description: Order data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new order
+      tags:
+      - Orders
+  /api/orders/{id}:
+    get:
+      description: Retrieves an order by its ID for the authenticated user.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get an order by ID
+      tags:
+      - Orders
+  /api/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of an order. Admin only.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Order status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateOrderStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update order status
+      tags:
+      - Orders
   /api/product-images:
     post:
       consumes:

@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type CouponRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewCouponRepository(db *sql.DB) *CouponRepository {
+func NewCouponRepository(db db.DBTX) *CouponRepository {
 	return &CouponRepository{
 		db: db,
 	}
@@ -287,6 +288,83 @@ func (r *CouponRepository) Update(ctx context.Context, coupon *models.Coupon) er
 func (r *CouponRepository) Delete(ctx context.Context, id int64) error {
 	query := `
 		DELETE FROM coupons
+		WHERE id = $1
+	`
+
+	result, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (r *CouponRepository) GetByCodeForUpdate(ctx context.Context, code string) (*models.Coupon, error) {
+
+	query := `
+		SELECT
+			id,
+			code,
+			discount_type,
+			discount_value,
+			minimum_order_amount,
+			maximum_discount,
+			usage_limit,
+			used_count,
+			starts_at,
+			expires_at,
+			is_active,
+			created_at,
+			updated_at
+		FROM coupons
+		WHERE code = $1
+		FOR UPDATE
+	`
+
+	coupon := &models.Coupon{}
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		code,
+	).Scan(
+		&coupon.ID,
+		&coupon.Code,
+		&coupon.DiscountType,
+		&coupon.DiscountValue,
+		&coupon.MinimumOrderAmount,
+		&coupon.MaximumDiscount,
+		&coupon.UsageLimit,
+		&coupon.UsedCount,
+		&coupon.StartsAt,
+		&coupon.ExpiresAt,
+		&coupon.IsActive,
+		&coupon.CreatedAt,
+		&coupon.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return coupon, nil
+}
+
+func (r *CouponRepository) IncrementUsedCount(ctx context.Context, id int64) error {
+	query := `
+		UPDATE coupons
+		SET
+			used_count = used_count + 1,
+			updated_at = NOW()
 		WHERE id = $1
 	`
 

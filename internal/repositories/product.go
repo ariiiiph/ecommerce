@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type ProductRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewProductRepository(db *sql.DB) *ProductRepository {
+func NewProductRepository(db db.DBTX) *ProductRepository {
 	return &ProductRepository{
 		db: db,
 	}

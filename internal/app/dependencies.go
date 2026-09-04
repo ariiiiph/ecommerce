@@ -29,4 +29,5 @@ type Dependencies struct {
 	WishlistHandler              *handlers.WishlistHandler
 	WishlistItemHandler          *handlers.WishlistItemHandler
 	CouponHandler                *handlers.CouponHandler
+	OrderHandler                 *handlers.OrderHandler
 }

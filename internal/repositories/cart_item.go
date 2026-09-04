@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type CartItemRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewCartItemRepository(db *sql.DB) *CartItemRepository {
+func NewCartItemRepository(db db.DBTX) *CartItemRepository {
 	return &CartItemRepository{
 		db: db,
 	}
@@ -38,7 +39,7 @@ func (r *CartItemRepository) Create(ctx context.Context, cartItem *models.CartIt
 }
 
 func (r *CartItemRepository) GetByID(ctx context.Context, id int64) (*models.CartItem, error) {
-	query := `SELECT id, cart_id, variant_id, Quantity, created_at, updated_at FROM cart_items WHERE id = $1`
+	query := `SELECT id, cart_id, variant_id, quantity, created_at, updated_at FROM cart_items WHERE id = $1`
 
 	cartItem := &models.CartItem{}
 
@@ -57,7 +58,7 @@ func (r *CartItemRepository) GetByID(ctx context.Context, id int64) (*models.Car
 }
 
 func (r *CartItemRepository) GetAllByCartID(ctx context.Context, cartID int64) ([]*models.CartItem, error) {
-	query := `SELECT id, cart_id, variant_id, Quantity, created_at, updated_at FROM cart_items WHERE cart_id = $1 ORDER BY id ASC`
+	query := `SELECT id, cart_id, variant_id, quantity, created_at, updated_at FROM cart_items WHERE cart_id = $1 ORDER BY id ASC`
 
 	rows, err := r.db.QueryContext(ctx, query, cartID)
 	if err != nil {
@@ -135,4 +136,11 @@ func (r *CartItemRepository) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func (r *CartItemRepository) DeleteByCartID(ctx context.Context, cartID int64) error {
+	query := `DELETE FROM cart_items WHERE cart_id = $1`
+
+	_, err := r.db.ExecContext(ctx, query, cartID)
+	return err
 }

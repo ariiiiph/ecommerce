@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type InventoryRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewInventoryRepository(db *sql.DB) *InventoryRepository {
+func NewInventoryRepository(db db.DBTX) *InventoryRepository {
 	return &InventoryRepository{
 		db: db,
 	}
@@ -126,6 +127,74 @@ func (r *InventoryRepository) Delete(ctx context.Context, variantID int64) error
 	query := `DELETE FROM inventory WHERE variant_id = $1`
 
 	result, err := r.db.ExecContext(ctx, query, variantID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (r *InventoryRepository) GetByVariantIDForUpdate(ctx context.Context, variantID int64) (*models.Inventory, error) {
+	query := `
+		SELECT
+			variant_id,
+			quantity,
+			reserved_quantity,
+			low_stock_threshold,
+			created_at,
+			updated_at
+		FROM inventory
+		WHERE variant_id = $1
+		FOR UPDATE
+	`
+
+	inventory := &models.Inventory{}
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		variantID,
+	).Scan(
+		&inventory.VariantID,
+		&inventory.Quantity,
+		&inventory.ReservedQuantity,
+		&inventory.LowStockThreshold,
+		&inventory.CreatedAt,
+		&inventory.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return inventory, nil
+}
+
+func (r *InventoryRepository) DecreaseQuantity(ctx context.Context, variantID int64, quantity int) error {
+	query := `
+		UPDATE inventory
+		SET
+			quantity = quantity - $1,
+			updated_at = NOW()
+		WHERE variant_id = $2
+			AND quantity - reserved_quantity >= $1
+	`
+
+	result, err := r.db.ExecContext(
+		ctx,
+		query,
+		quantity,
+		variantID,
+	)
 	if err != nil {
 		return err
 	}

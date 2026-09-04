@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/ariiiiph/ecommerce/internal/db"
 	"github.com/ariiiiph/ecommerce/internal/models"
 )
 
 type AddressRepository struct {
-	db *sql.DB
+	db db.DBTX
 }
 
-func NewAddressRepository(db *sql.DB) *AddressRepository {
+func NewAddressRepository(db db.DBTX) *AddressRepository {
 	return &AddressRepository{
 		db: db,
 	}
@@ -196,17 +197,10 @@ func (r *AddressRepository) Delete(ctx context.Context, id int64) error {
 }
 
 func (r *AddressRepository) CreateAsDefault(ctx context.Context, address *models.Address) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	defer tx.Rollback()
-
-	// Remove the current default address for this user.
-	_, err = tx.ExecContext(
+	_, err := r.db.ExecContext(
 		ctx,
-		`UPDATE addresses SET is_default = FALSE, updated_at = NOW()
+		`UPDATE addresses
+		 SET is_default = FALSE, updated_at = NOW()
 		 WHERE user_id = $1 AND is_default = TRUE`,
 		address.UserID,
 	)
@@ -242,7 +236,7 @@ func (r *AddressRepository) CreateAsDefault(ctx context.Context, address *models
 			updated_at
 	`
 
-	err = tx.QueryRowContext(
+	return r.db.QueryRowContext(
 		ctx,
 		query,
 		address.UserID,
@@ -267,25 +261,13 @@ func (r *AddressRepository) CreateAsDefault(ctx context.Context, address *models
 		&address.CreatedAt,
 		&address.UpdatedAt,
 	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
 }
 
 func (r *AddressRepository) UpdateAsDefault(ctx context.Context, address *models.Address) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	defer tx.Rollback()
-
-	// Remove the current default address for this user.
-	_, err = tx.ExecContext(
+	_, err := r.db.ExecContext(
 		ctx,
-		`UPDATE addresses SET is_default = FALSE, updated_at = NOW()
+		`UPDATE addresses
+		 SET is_default = FALSE, updated_at = NOW()
 		 WHERE user_id = $1 AND is_default = TRUE AND id != $2`,
 		address.UserID,
 		address.ID,
@@ -294,8 +276,7 @@ func (r *AddressRepository) UpdateAsDefault(ctx context.Context, address *models
 		return err
 	}
 
-	// Set this address as the default.
-	result, err := tx.ExecContext(
+	result, err := r.db.ExecContext(
 		ctx,
 		`UPDATE addresses
 		 SET title = $1,
@@ -330,5 +311,53 @@ func (r *AddressRepository) UpdateAsDefault(ctx context.Context, address *models
 		return sql.ErrNoRows
 	}
 
-	return tx.Commit()
+	return nil
+}
+
+func (r *AddressRepository) GetDefaultByUserID(ctx context.Context, userID int64) (*models.Address, error) {
+	query := `
+		SELECT
+			id,
+			user_id,
+			title,
+			recipient_name,
+			phone,
+			country,
+			city,
+			address_line,
+			postal_code,
+			is_default,
+			created_at,
+			updated_at
+		FROM addresses
+		WHERE user_id = $1
+		  AND is_default = TRUE
+		LIMIT 1
+	`
+
+	address := &models.Address{}
+
+	err := r.db.QueryRowContext(
+		ctx,
+		query,
+		userID,
+	).Scan(
+		&address.ID,
+		&address.UserID,
+		&address.Title,
+		&address.RecipientName,
+		&address.Phone,
+		&address.Country,
+		&address.City,
+		&address.AddressLine,
+		&address.PostalCode,
+		&address.IsDefault,
+		&address.CreatedAt,
+		&address.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return address, nil
 }
