@@ -129,4 +129,9 @@ func RegisterRoutes(
 	mux.Handle("GET /api/orders/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.OrderHandler.GetByID)))
 	mux.Handle("PATCH /api/orders/{id}/status", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.OrderHandler.UpdateStatus))))
 
+	// Payments
+	mux.Handle("POST /api/payments", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.PaymentHandler.Create)))
+	mux.Handle("GET /api/payments/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.PaymentHandler.GetByID)))
+	mux.Handle("GET /api/orders/{order_id}/payment", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.PaymentHandler.GetByOrderID)))
+
 }

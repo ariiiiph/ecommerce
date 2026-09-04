@@ -33,6 +33,7 @@ func New(dependencies *Dependencies) *App {
 	orderRepo := repositories.NewOrderRepository(dependencies.DB)
 	orderItemRepo := repositories.NewOrderItemRepository(dependencies.DB)
 	couponUsageRepo := repositories.NewCouponUsageRepository(dependencies.DB)
+	paymentRepo := repositories.NewPaymentRepository(dependencies.DB)
 
 	// Services
 	authService := services.NewAuthService(
@@ -130,6 +131,12 @@ func New(dependencies *Dependencies) *App {
 		couponRepo,
 	)
 
+	paymentService := services.NewPaymentService(
+		dependencies.DB,
+		paymentRepo,
+		orderRepo,
+	)
+
 	// Handlers
 	authHandler := handlers.NewAuthHandler(authService)
 
@@ -182,6 +189,8 @@ func New(dependencies *Dependencies) *App {
 		orderService,
 	)
 
+	paymentHandler := handlers.NewPaymentHandler(paymentService)
+
 	// Dependencies
 	dependencies.AuthHandler = authHandler
 	dependencies.CategoryHandler = categoryHandler
@@ -200,6 +209,7 @@ func New(dependencies *Dependencies) *App {
 	dependencies.WishlistItemHandler = wishlistItemHandler
 	dependencies.CouponHandler = couponHandler
 	dependencies.OrderHandler = orderHandler
+	dependencies.PaymentHandler = paymentHandler
 
 	return &App{
 		Dependencies: dependencies,

@@ -238,6 +238,11 @@ definitions:
       coupon_id:
         type: string
     type: object
+  dto.CreatePaymentRequest:
+    properties:
+      order_id:
+        type: integer
+    type: object
   dto.CreateProductImageRequest:
     properties:
       image_url:
@@ -334,14 +339,12 @@ definitions:
     type: object
   dto.OrderResponse:
     properties:
-      Created_at:
-        type: string
-      Shipping_postal_code:
-        type: string
       address_id:
         type: integer
       coupon_id:
         type: integer
+      created_at:
+        type: string
       discount_amount:
         type: number
       id:
@@ -362,9 +365,11 @@ definitions:
         type: string
       shipping_phone:
         type: string
+      shipping_postal_code:
+        type: string
       shipping_recipient_name:
         type: string
-      string:
+      status:
         type: string
       subtotal:
         type: number
@@ -374,6 +379,29 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  dto.PaymentResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      currency:
+        type: string
+      id:
+        type: integer
+      order_id:
+        type: integer
+      paid_at:
+        type: string
+      provider:
+        type: string
+      status:
+        type: string
+      transaction_id:
+        type: string
+      updated_at:
+        type: string
     type: object
   dto.ProductImageResponse:
     properties:
@@ -2703,6 +2731,134 @@ paths:
       summary: Update order status
       tags:
       - Orders
+  /api/orders/{order_id}/payment:
+    get:
+      description: Retrieves the payment belonging to the authenticated user's order.
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get payment by order ID
+      tags:
+      - Payments
+  /api/payments:
+    post:
+      consumes:
+      - application/json
+      description: Creates a mock payment for the authenticated user's pending order.
+      parameters:
+      - description: Payment data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a payment
+      tags:
+      - Payments
+  /api/payments/{id}:
+    get:
+      description: Retrieves a payment belonging to the authenticated user.
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a payment by ID
+      tags:
+      - Payments
   /api/product-images:
     post:
       consumes:
