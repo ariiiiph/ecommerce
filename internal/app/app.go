@@ -101,6 +101,7 @@ func New(dependencies *Dependencies) *App {
 		cartItemRepository,
 		cartRepository,
 		productVariantRepository,
+		dependencies.Redis,
 	)
 
 	wishlistService := services.NewWishlistService(

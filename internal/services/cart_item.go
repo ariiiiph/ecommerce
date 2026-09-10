@@ -3,25 +3,31 @@ package services
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 
 	"github.com/ariiiiph/ecommerce/internal/apperror"
+	"github.com/ariiiiph/ecommerce/internal/cache"
 	"github.com/ariiiiph/ecommerce/internal/dto"
 	"github.com/ariiiiph/ecommerce/internal/models"
+	"github.com/ariiiiph/ecommerce/internal/redis"
 	"github.com/ariiiiph/ecommerce/internal/repositories"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 type CartItemService struct {
 	cartItemRepo       *repositories.CartItemRepository
 	cartRepo           *repositories.CartRepository
 	productVariantRepo *repositories.ProductVariantRepository
+	redisClient        *redis.Client
 }
 
-func NewCartItemService(cartItemRepo *repositories.CartItemRepository, cartRepo *repositories.CartRepository, productVariantRepo *repositories.ProductVariantRepository) *CartItemService {
+func NewCartItemService(cartItemRepo *repositories.CartItemRepository, cartRepo *repositories.CartRepository, productVariantRepo *repositories.ProductVariantRepository, redisClient *redis.Client) *CartItemService {
 	return &CartItemService{
 		cartItemRepo:       cartItemRepo,
 		cartRepo:           cartRepo,
 		productVariantRepo: productVariantRepo,
+		redisClient:        redisClient,
 	}
 }
 
@@ -76,6 +82,10 @@ func (s *CartItemService) Create(ctx context.Context, req *dto.CreateCartItemReq
 	}
 
 	if err := s.cartItemRepo.Create(ctx, cartItem); err != nil {
+		return nil, err
+	}
+
+	if err := s.invalidateCartItemsCache(ctx, cart.ID); err != nil {
 		return nil, err
 	}
 
@@ -161,6 +171,20 @@ func (s *CartItemService) GetAllByCartID(ctx context.Context, cartID int64, user
 			"you do not have access to this cart",
 		)
 	}
+	cacheKey := cache.CartItemsKey(cartID)
+
+	cachedData, err := s.redisClient.Get(ctx, cacheKey).Bytes()
+	if err == nil {
+		var result []*dto.CartItemResponse
+
+		if err := json.Unmarshal(cachedData, &result); err == nil {
+			return result, nil
+		}
+	}
+
+	if err != nil && err != goredis.Nil {
+		return nil, err
+	}
 
 	cartItems, err := s.cartItemRepo.GetAllByCartID(ctx, cartID)
 	if err != nil {
@@ -173,7 +197,20 @@ func (s *CartItemService) GetAllByCartID(ctx context.Context, cartID int64, user
 		result = append(result, toCartItemResponse(cartItem))
 	}
 
+	data, err := json.Marshal(result)
+	if err == nil {
+		if err := s.redisClient.Set(
+			ctx,
+			cacheKey,
+			data,
+			cache.CartItemsCacheTTL,
+		).Err(); err != nil {
+			return nil, err
+		}
+	}
+
 	return result, nil
+
 }
 
 func (s *CartItemService) Update(ctx context.Context, id int64, req *dto.UpdateCartItemRequest, userID int64) (*dto.CartItemResponse, error) {
@@ -238,6 +275,9 @@ func (s *CartItemService) Update(ctx context.Context, id int64, req *dto.UpdateC
 		}
 		return nil, err
 	}
+	if err := s.invalidateCartItemsCache(ctx, cart.ID); err != nil {
+		return nil, err
+	}
 
 	return toCartItemResponse(cartItem), nil
 }
@@ -295,8 +335,18 @@ func (s *CartItemService) Delete(ctx context.Context, id int64, userID int64) er
 		}
 		return err
 	}
+	if err := s.invalidateCartItemsCache(ctx, cart.ID); err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func (s *CartItemService) invalidateCartItemsCache(ctx context.Context, cartID int64) error {
+	return s.redisClient.Del(
+		ctx,
+		cache.CartItemsKey(cartID),
+	).Err()
 }
 
 func toCartItemResponse(cartItem *models.CartItem) *dto.CartItemResponse {
