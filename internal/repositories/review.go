@@ -269,3 +269,125 @@ func (r *ReviewRepository) Delete(ctx context.Context, id int64) error {
 
 	return err
 }
+
+func (r *ReviewRepository) GetAll(ctx context.Context) ([]*models.Review, error) {
+	query := `
+		SELECT
+			id,
+			user_id,
+			product_id,
+			rating,
+			title,
+			comment,
+			status,
+			created_at,
+			updated_at
+		FROM reviews
+		ORDER BY created_at DESC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	reviews := make([]*models.Review, 0)
+
+	for rows.Next() {
+		review := &models.Review{}
+
+		if err := rows.Scan(
+			&review.ID,
+			&review.UserID,
+			&review.ProductID,
+			&review.Rating,
+			&review.Title,
+			&review.Comment,
+			&review.Status,
+			&review.CreatedAt,
+			&review.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		reviews = append(reviews, review)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reviews, nil
+}
+
+func (r *ReviewRepository) GetAllByStatus(ctx context.Context, status string) ([]*models.Review, error) {
+	query := `
+		SELECT
+			id,
+			user_id,
+			product_id,
+			rating,
+			title,
+			comment,
+			status,
+			created_at,
+			updated_at
+		FROM reviews
+		WHERE status = $1
+		ORDER BY created_at DESC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	reviews := make([]*models.Review, 0)
+
+	for rows.Next() {
+		review := &models.Review{}
+
+		if err := rows.Scan(
+			&review.ID,
+			&review.UserID,
+			&review.ProductID,
+			&review.Rating,
+			&review.Title,
+			&review.Comment,
+			&review.Status,
+			&review.CreatedAt,
+			&review.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		reviews = append(reviews, review)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reviews, nil
+}
+
+func (r *ReviewRepository) UpdateStatus(ctx context.Context, id int64, status string) error {
+	query := `
+		UPDATE reviews
+		SET
+			status = $1,
+			updated_at = NOW()
+		WHERE id = $2
+	`
+
+	_, err := r.db.ExecContext(
+		ctx,
+		query,
+		status,
+		id,
+	)
+
+	return err
+}

@@ -142,4 +142,10 @@ func RegisterRoutes(
 	mux.Handle("DELETE /api/reviews/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.Delete)))
 	mux.HandleFunc("GET /api/products/{id}/reviews", deps.ReviewHandler.GetAllByProductID)
 
+	// Admin Review routes
+	mux.Handle("GET /api/admin/reviews", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ReviewHandler.GetAllForAdmin))))
+	mux.Handle("GET /api/admin/reviews/status", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ReviewHandler.GetAllByStatusForAdmin))))
+	mux.Handle("PATCH /api/admin/reviews/{id}/approve", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ReviewHandler.Approve))))
+	mux.Handle("PATCH /api/admin/reviews/{id}/reject", middleware.AuthMiddleware(deps.Config.JWT)(middleware.RequireRole("admin")(http.HandlerFunc(deps.ReviewHandler.Reject))))
+
 }

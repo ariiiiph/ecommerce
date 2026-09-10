@@ -318,6 +318,125 @@ func (s *ReviewService) Delete(ctx context.Context, id int64, userID int64) erro
 	return s.reviewRepo.Delete(ctx, id)
 }
 
+func (s *ReviewService) GetAllForAdmin(ctx context.Context) ([]*dto.ReviewResponse, error) {
+
+	reviews, err := s.reviewRepo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*dto.ReviewResponse, 0, len(reviews))
+
+	for _, review := range reviews {
+		result = append(result, toReviewResponse(review))
+	}
+
+	return result, nil
+}
+
+func (s *ReviewService) GetAllByStatusForAdmin(ctx context.Context, status string) ([]*dto.ReviewResponse, error) {
+
+	status = strings.TrimSpace(status)
+
+	if status != "pending" &&
+		status != "approved" &&
+		status != "rejected" {
+		return nil, apperror.BadRequest(
+			"INVALID_REVIEW_STATUS",
+			"invalid review status",
+		)
+	}
+
+	reviews, err := s.reviewRepo.GetAllByStatus(ctx, status)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*dto.ReviewResponse, 0, len(reviews))
+
+	for _, review := range reviews {
+		result = append(result, toReviewResponse(review))
+	}
+
+	return result, nil
+}
+
+func (s *ReviewService) Approve(ctx context.Context, id int64) error {
+
+	if id <= 0 {
+		return apperror.BadRequest(
+			"INVALID_REVIEW_ID",
+			"invalid review id",
+		)
+	}
+
+	review, err := s.reviewRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return apperror.NotFound(
+				"REVIEW_NOT_FOUND",
+				"review not found",
+			)
+		}
+
+		return err
+	}
+
+	if review.Status == "approved" {
+		return apperror.Conflict(
+			"REVIEW_ALREADY_APPROVED",
+			"review is already approved",
+		)
+	}
+
+	if review.Status == "rejected" {
+		return apperror.Conflict(
+			"REVIEW_ALREADY_REJECTED",
+			"rejected review cannot be approved",
+		)
+	}
+
+	return s.reviewRepo.UpdateStatus(ctx, id, "approved")
+}
+
+func (s *ReviewService) Reject(ctx context.Context, id int64) error {
+
+	if id <= 0 {
+		return apperror.BadRequest(
+			"INVALID_REVIEW_ID",
+			"invalid review id",
+		)
+	}
+
+	review, err := s.reviewRepo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return apperror.NotFound(
+				"REVIEW_NOT_FOUND",
+				"review not found",
+			)
+		}
+
+		return err
+	}
+
+	if review.Status == "rejected" {
+		return apperror.Conflict(
+			"REVIEW_ALREADY_REJECTED",
+			"review is already rejected",
+		)
+	}
+
+	if review.Status == "approved" {
+		return apperror.Conflict(
+			"REVIEW_ALREADY_APPROVED",
+			"approved review cannot be rejected",
+		)
+	}
+
+	return s.reviewRepo.UpdateStatus(ctx, id, "rejected")
+}
+
 func toReviewResponse(review *models.Review) *dto.ReviewResponse {
 	return &dto.ReviewResponse{
 		ID:        review.ID,
