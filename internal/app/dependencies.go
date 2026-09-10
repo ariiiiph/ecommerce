@@ -31,4 +31,5 @@ type Dependencies struct {
 	CouponHandler                *handlers.CouponHandler
 	OrderHandler                 *handlers.OrderHandler
 	PaymentHandler               *handlers.PaymentHandler
+	ReviewHandler                *handlers.ReviewHandler
 }

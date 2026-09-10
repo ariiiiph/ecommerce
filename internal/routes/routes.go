@@ -134,4 +134,12 @@ func RegisterRoutes(
 	mux.Handle("GET /api/payments/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.PaymentHandler.GetByID)))
 	mux.Handle("GET /api/orders/{order_id}/payment", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.PaymentHandler.GetByOrderID)))
 
+	// Review routes
+	mux.Handle("POST /api/reviews", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.Create)))
+	mux.Handle("GET /api/reviews/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.GetByID)))
+	mux.Handle("GET /api/reviews/me", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.GetAllByUserID)))
+	mux.Handle("PUT /api/reviews/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.Update)))
+	mux.Handle("DELETE /api/reviews/{id}", middleware.AuthMiddleware(deps.Config.JWT)(http.HandlerFunc(deps.ReviewHandler.Delete)))
+	mux.HandleFunc("GET /api/products/{id}/reviews", deps.ReviewHandler.GetAllByProductID)
+
 }
